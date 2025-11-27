@@ -1,0 +1,35 @@
+<location width='10' depth='20'>
+    <!--Фасад доходного дома-->
+    <room x='0' y='0' width='10' depth='20' />
+    <door depth="1" width="1" x='5' y='0'/>
+
+    <!--Комната 1-->
+    <room x='0' y='0' width='4' depth='6'/>
+    <door depth="1" width="1" x='3' y='4'/>
+    <kip x="1" y="1" width="1" depth="2" />
+
+    <!--Комната 2-->
+    <room x='6' y='0' width='4' depth='6'/>
+    <door depth="1" width="1" x='6' y='4'/>
+    <kip x="8" y="1" width="1" depth="2" />
+
+    <!--Комната 3-->
+    <room x='0' y='5' width='4' depth='7'/>
+    <door depth="1" width="1" x='3' y='10'/>
+    <kip x="1" y="7" width="1" depth="2" />
+
+    <!--Комната 4-->
+    <room x='6' y='5' width='4' depth='7'/>
+    <door depth="1" width="1" x='6' y='10'/>
+    <kip x="8" y="7" width="1" depth="2" />
+
+    <!--Комната 5-->
+    <room x='0' y='11' width='4' depth='9'/>
+    <door depth="1" width="1" x='3' y='17'/>
+    <kip x="1" y="14" width="1" depth="2" />
+
+    <!--Комната 6-->
+    <room x='6' y='11' width='4' depth='9'/>
+    <door depth="1" width="1" x='6' y='17'/>
+    <kip x="8" y="14" width="1" depth="2" />
+</location>

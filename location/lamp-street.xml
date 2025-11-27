@@ -1,0 +1,28 @@
+<!-- TODO: Развернуть улицу -->
+<location width='11' depth='52'>
+    <!-- 1ый Дом Lamp Street -->
+    <room x='0' y='0' width='3' depth='20' />
+    <door x="2" y="10" width="1" depth="1" />
+
+    <!-- 2ый Дом Lamp Street -->
+    <room x='8' y='0' width='3' depth='10' />
+    <door x="8" y="5" width="1" depth="1" />
+
+    <!-- 3ий Дом на Lamp Street (Пастион у Фреи)-->
+    <frey-pastion x="0" y="21" />
+
+    <!-- 4ый Дом Lamp Street -->
+    <room x='8' y='11' width='3' depth='15' />
+    <door x="8" y="18" width="1" depth="1" />
+
+    <!-- 5ый Дом Lamp Street (Таверна у Фреи)-->
+    <frey-tavern x="0" y="32" />
+
+    <!-- 6ый Дом Lamp Street -->
+    <room x='8' y='27' width='3' depth='15' />
+    <door x="8" y="35" width="1" depth="1" />
+
+    <!-- 8ой Дом Lamp Street -->
+    <room x='8' y='43' width='4' depth='9' />
+    <door x="8" y="45" width="1" depth="1" />
+</location>
