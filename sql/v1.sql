@@ -1,5 +1,5 @@
 -- 1. Campaigns (Кампании)
-CREATE TABLE campaigns (
+CREATE TABLE IF NOT EXISTS campaigns (
                            id SERIAL,
                            name TEXT NOT NULL,
 
@@ -8,7 +8,7 @@ CREATE TABLE campaigns (
 );
 
 -- 2. Users (Пользователи)
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
                        id SERIAL,
                        name TEXT NOT NULL,
 
@@ -17,7 +17,7 @@ CREATE TABLE users (
 );
 
 -- 3. Sessions (Сессии) - зависит от campaigns
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
                           id SERIAL,
                           time INTEGER NOT NULL DEFAULT 0,
                           name TEXT NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE sessions (
 );
 
 -- 4. Locations (Локации) - зависит от campaigns
-CREATE TABLE locations (
+CREATE TABLE IF NOT EXISTS locations (
                            id SERIAL,
                            name TEXT NOT NULL,
                            campaign_id INTEGER NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE locations (
 );
 
 -- 5. Entities (Сущности) - зависит от sessions, ссылается сама на себя
-CREATE TABLE entities (
+CREATE TABLE IF NOT EXISTS entities (
                           id SERIAL,
                           name TEXT NOT NULL,
                           x INTEGER,
@@ -85,7 +85,7 @@ CREATE TABLE entities (
 );
 
 -- 6. Roles (Роли) - зависит от users, entities, sessions
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
                        id SERIAL,
                        name TEXT NOT NULL,
                        user_id INTEGER NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE roles (
 );
 
 -- 7. Attributes (Атрибуты) - зависит от entities
-CREATE TABLE attributes (
+CREATE TABLE IF NOT EXISTS attributes (
                             id SERIAL,
                             name TEXT NOT NULL,
                             int_value INTEGER,
@@ -117,7 +117,7 @@ CREATE TABLE attributes (
 );
 
 -- 8. Turns (Ходы/Очередь) - зависит от entities, sessions
-CREATE TABLE turns (
+CREATE TABLE IF NOT EXISTS turns (
                        id SERIAL,
                        name TEXT NOT NULL,
                        remains DOUBLE PRECISION NOT NULL DEFAULT 0.0,
