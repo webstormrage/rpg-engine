@@ -1,4 +1,4 @@
-<location width='10' depth='20'>
+<location>
     <!--Фасад доходного дома-->
     <room x='0' y='0' width='10' depth='20' />
     <door depth="1" width="1" x='5' y='0'/>
