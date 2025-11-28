@@ -22,7 +22,9 @@ const sqliteMigrationSQL = `
     -- Locations
     CREATE TABLE locations (
         id INTEGER PRIMARY KEY, 
-        name TEXT NOT NULL UNIQUE, 
+        name TEXT NOT NULL UNIQUE,
+        xml TEXT NOT NULL,
+        is_entry BOOLEAN NOT NULL DEFAULT FALSE,
         campaign_id INTEGER NOT NULL,
         FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE
     );
@@ -78,22 +80,5 @@ func TestNew_CreatesDefaultRecords(t *testing.T) {
 		r.NoError(err)
 		r.NotNil(user, "Дефолтный пользователь 'root' должен быть создан")
 		r.Equal("root", user.Name)
-	})
-
-	t.Run("Check Default Campaign 'default'", func(t *testing.T) {
-		campaign, err := s.GetCampaign("default")
-		r.NoError(err)
-		r.NotNil(campaign, "Дефолтная кампания 'default' должна быть создана")
-		r.Equal("default", campaign.Name)
-	})
-
-	t.Run("Check Default Session 'default'", func(t *testing.T) {
-		session, err := s.GetSession("default")
-		r.NoError(err)
-		r.NotNil(session, "Дефолтная сессия 'default' должна быть создана")
-		r.Equal("default", session.Name)
-
-		campaign, _ := s.GetCampaign("default")
-		r.Equal(campaign.ID, session.CampaignID, "Сессия должна быть привязана к дефолтной кампании")
 	})
 }

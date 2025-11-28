@@ -1,10 +1,10 @@
-package location
+package locationParser
 
 import (
 	"bytes"
 	"encoding/xml"
 	"io"
-	"rpg-engine/pkg/location/item"
+	"rpg-engine/pkg/location-parser/item"
 )
 
 type Location struct {

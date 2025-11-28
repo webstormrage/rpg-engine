@@ -1,4 +1,4 @@
-package location
+package locationParser
 
 import (
 	"github.com/stretchr/testify/require"

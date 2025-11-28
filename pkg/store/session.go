@@ -14,19 +14,45 @@ type Session struct {
 	CampaignID uint `gorm:"not null"`
 }
 
+func extractEntitiesFromLocation(tx *gorm.DB, loc *Location, dx int, dy int) error {
+	// TODO: c помощью location parser заполнить таблицу entitities (X, Y, depth, width, session_id)
+	// TODO: при нахождении нестандартного тега искать дочернюю
+}
+
 func (s *Store) CreateSession(name string, campaignID uint) (*Session, error) {
-	newSession := &Session{
-		Name:       name,
-		CampaignID: campaignID, // Устанавливаем внешний ключ
+	err := s.DB.Transaction(func(tx *gorm.DB) error {
+		newSession := &Session{
+			Name:       name,
+			CampaignID: campaignID, // Устанавливаем внешний ключ
+		}
+
+		sessionResult := s.DB.Create(newSession)
+
+		if sessionResult.Error != nil {
+			return fmt.Errorf("ошибка при создании сессии: %w", sessionResult.Error)
+		}
+
+		var location Location
+		result := tx.Where("campaign_id = ? AND is_entry = TRUE", campaignID).First(&location)
+
+		if result.Error != nil {
+			return result.Error
+		}
+		err := extractEntitiesFromLocation(tx, &location, 0, 0)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
-
-	result := s.DB.Create(newSession)
-
-	if result.Error != nil {
-		return nil, fmt.Errorf("ошибка при создании сессии: %w", result.Error)
+	session, err := s.GetSession(name)
+	if err != nil {
+		return nil, err
 	}
-
-	return newSession, nil
+	return session, nil
 }
 
 func (s *Store) GetSession(name string) (*Session, error) {

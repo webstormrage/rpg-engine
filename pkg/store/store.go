@@ -31,21 +31,5 @@ func New(dialector gorm.Dialector, sqlScript string) (*Store, error) {
 		user, err = s.CreateUser("root")
 	}
 
-	campaign, err := s.GetCampaign("default")
-
-	if err != nil {
-		return nil, err
-	}
-	if campaign == nil {
-		campaign, err = s.CreateCampaign("default")
-	}
-
-	session, err := s.GetSession("default")
-	if err != nil {
-		return nil, err
-	}
-	if session == nil {
-		session, err = s.CreateSession("default", campaign.ID)
-	}
 	return s, nil
 }

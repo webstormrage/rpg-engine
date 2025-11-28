@@ -34,12 +34,18 @@ CREATE TABLE IF NOT EXISTS locations (
                            id SERIAL,
                            name TEXT NOT NULL,
                            campaign_id INTEGER NOT NULL,
+                           xml TEXT NOT NULL,
+                           is_entry BOOLEAN NOT NULL default FALSE,
 
                            CONSTRAINT pk_locations PRIMARY KEY (id),
                            CONSTRAINT uq_locations_name UNIQUE (name),
                            CONSTRAINT fk_locations_campaign_id FOREIGN KEY (campaign_id)
                                REFERENCES campaigns(id) ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_one_entry_per_campaign
+    ON locations (campaign_id)
+    WHERE is_entry = TRUE;
 
 -- 5. Entities (Сущности) - зависит от sessions, ссылается сама на себя
 CREATE TABLE IF NOT EXISTS entities (
