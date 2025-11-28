@@ -1,8 +1,8 @@
 package store
 
 import (
+	gsqlite "github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
 	"testing"
 )
 
@@ -65,7 +65,7 @@ const sqliteMigrationSQL = `
 func TestNew_CreatesDefaultRecords(t *testing.T) {
 	r := require.New(t)
 
-	dialector := sqlite.Open("file::memory:?cache=shared")
+	dialector := gsqlite.Open("file::memory:?cache=shared")
 
 	s, err := New(dialector, sqliteMigrationSQL)
 
