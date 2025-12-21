@@ -2,6 +2,18 @@ import './style.css'
 import { Application, Assets, Container, Sprite } from 'pixi.js'
 import { createPerspectiveGrid } from './perspective-grid'
 
+const keys:Record<string, boolean> = {};
+
+window.addEventListener('keydown', (e) => {
+    keys[e.key] = true
+})
+
+window.addEventListener('keyup', (e) => {
+    keys[e.key] = false
+})
+
+const CAMERA_SPEED = 10 // px за кадр
+
 async function main() {
     const app = new Application()
 
@@ -65,6 +77,15 @@ async function main() {
 
     resizeWorld()
     window.addEventListener('resize', resizeWorld)
+    //@ts-ignore
+    window.world = world;
+
+    app.ticker.add(() => {
+        if (keys['ArrowLeft'])  world.x += CAMERA_SPEED
+        if (keys['ArrowRight']) world.x -= CAMERA_SPEED
+        if (keys['ArrowUp'])    world.y += CAMERA_SPEED
+        if (keys['ArrowDown'])  world.y -= CAMERA_SPEED
+    })
 }
 
 main()
