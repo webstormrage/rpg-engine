@@ -1,5 +1,5 @@
 import './style.css'
-import { Application, Assets, Sprite, Container } from 'pixi.js'
+import { Application, Assets, Container, Sprite } from 'pixi.js'
 import { createPerspectiveGrid } from './perspective-grid'
 
 async function main() {
@@ -12,33 +12,39 @@ async function main() {
 
     document.body.appendChild(app.canvas)
 
-    // 🌍 общий мир
+    // отключаем контекстное меню (ПКМ)
+    app.canvas.addEventListener('contextmenu', (e) => {
+        e.preventDefault()
+    })
+
+    // ===== WORLD (общая система координат) =====
     const world = new Container()
     app.stage.addChild(world)
 
-    // ===== BACKGROUND =====
-    const backgroundUrl = '/tavern.png';
+    // ===== ASSETS =====
+    const bgTexture = await Assets.load('/tavern.png')
+    const npcTexture = await Assets.load('/merchant.png')
 
-    const texture = await Assets.load(backgroundUrl)
-    const bg = new Sprite(texture)
+    // ===== BACKGROUND =====
+    const bg = new Sprite(bgTexture)
     world.addChild(bg)
 
     // ===== GRID =====
     const grid = createPerspectiveGrid({
-        rows: 10,
-        cols: 22,
-        cell: 125,
-        angle: Math.PI * 0.494,
+        rows: 6,
+        cols: 10,
+        cell: 250,
+        angle: Math.PI * 0.493,
         cameraDistance: 10,
+        npcTexture,
     })
     world.addChild(grid)
 
-    // базовый размер (логический)
+    // логическое разрешение
     const BASE_WIDTH = 1280
     const BASE_HEIGHT = 720
 
     function resizeWorld() {
-        // единый scale
         const scale = Math.min(
             app.screen.width / BASE_WIDTH,
             app.screen.height / BASE_HEIGHT
@@ -46,16 +52,15 @@ async function main() {
 
         world.scale.set(scale)
 
-        // фон — ТОЛЬКО по ширине (логические координаты)
-        const bgScale = BASE_WIDTH / texture.width
+        // background (логические координаты)
+        const bgScale = BASE_WIDTH / bgTexture.width
         bg.scale.set(bgScale)
-
         bg.x = 0
         bg.y = BASE_HEIGHT - bg.height
 
-        // сетка
+        // grid
         grid.x = BASE_WIDTH / 2
-        grid.y = BASE_HEIGHT
+        grid.y = BASE_HEIGHT// - 40
     }
 
     resizeWorld()
