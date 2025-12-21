@@ -1,34 +1,22 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
 	"log"
-	"os"
-	"rpg-engine/pkg/store"
+	"net/http"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Ошибка загрузки файла .env: %v", err)
-	}
+	// Папка со статикой
+	fs := http.FileServer(http.Dir("./web/dist"))
 
-	// 2. Получение DSN и пути к миграции из переменных окружения
-	dsn := os.Getenv("DATA_SOURCE_NAME")
+	// Все запросы отдаём из папки web
+	http.Handle("/", fs)
 
-	dialector := postgres.Open(dsn)
+	addr := ":8080"
+	log.Println("Server started at http://localhost" + addr)
 
-	if dsn == "" {
-		log.Fatal("Переменная DATABASE_URL не найдена в .env")
-	}
-
-	migrationFile := "sql/v1.sql"
-
-	sqlScript, err := os.ReadFile(migrationFile)
+	err := http.ListenAndServe(addr, nil)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-
-	// Используем вашу функцию New
-	storage, err := store.New(dialector, sqlScript)
 }
