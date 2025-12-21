@@ -17,8 +17,7 @@ async function main() {
     app.stage.addChild(world)
 
     // ===== BACKGROUND =====
-    const backgroundUrl =
-        'https://i0.wp.com/therefinedgeek.com.au/wp-content/uploads/2012/09/Galaxy-on-Fire-2-PC-Version-Screenshot-Wallpaper-Space-Lounge.jpg?ssl=1'
+    const backgroundUrl = '/tavern.png';
 
     const texture = await Assets.load(backgroundUrl)
     const bg = new Sprite(texture)
@@ -26,9 +25,10 @@ async function main() {
 
     // ===== GRID =====
     const grid = createPerspectiveGrid({
-        gridSize: 10,
+        rows: 10,
+        cols: 22,
         cell: 125,
-        angle: Math.PI * 0.49,
+        angle: Math.PI * 0.494,
         cameraDistance: 10,
     })
     world.addChild(grid)
@@ -55,7 +55,7 @@ async function main() {
 
         // сетка
         grid.x = BASE_WIDTH / 2
-        grid.y = BASE_HEIGHT - 25
+        grid.y = BASE_HEIGHT
     }
 
     resizeWorld()

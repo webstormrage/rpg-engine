@@ -1,7 +1,8 @@
 import { Container, Graphics, Point } from 'pixi.js'
 
 type PerspectiveGridOptions = {
-    gridSize: number
+    rows: number
+    cols: number
     cell: number
     angle: number
     cameraDistance: number
@@ -11,7 +12,8 @@ type PerspectiveGridOptions = {
 }
 
 export function createPerspectiveGrid({
-                                          gridSize,
+                                          rows,
+                                          cols,
                                           cell,
                                           angle,
                                           cameraDistance,
@@ -21,26 +23,20 @@ export function createPerspectiveGrid({
                                       }: PerspectiveGridOptions) {
     const container = new Container()
 
-    // локальный якорь (контейнер потом смещается)
     const cx = 0
     const cy = 0
 
-    // перспектива
     function project(x: number, y: number, z: number) {
         const scale = 1 / (1 + z / cameraDistance)
-        return new Point(
-            x * scale + cx,
-            y * scale + cy
-        )
+        return new Point(x * scale + cx, y * scale + cy)
     }
 
-    // 3D → 2D (один в один с твоим примером)
     function transform(x: number, z: number) {
         const X = x * cell
         const Z = z * cell
 
         const Yr = -Z * Math.sin(angle)
-        const Zr =  Z * Math.cos(angle)
+        const Zr = Z * Math.cos(angle)
 
         return project(X, Yr, Zr)
     }
@@ -50,21 +46,25 @@ export function createPerspectiveGrid({
     }
 
     function midpoint(a: Point, b: Point) {
-        return new Point(
-            (a.x + b.x) / 2,
-            (a.y + b.y) / 2
-        )
+        return new Point((a.x + b.x) / 2, (a.y + b.y) / 2)
     }
 
     // создаём ячейки
-    for (let row = 0; row < gridSize; row++) {
-        for (let col = 0; col < gridSize; col++) {
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
 
-            // углы трапеции
-            const p00 = transform(col - gridSize / 2,     gridSize - row)
-            const p10 = transform(col + 1 - gridSize / 2, gridSize - row)
-            const p11 = transform(col + 1 - gridSize / 2, gridSize - (row + 1))
-            const p01 = transform(col - gridSize / 2,     gridSize - (row + 1))
+            // центрирование по X через cols
+            const x0 = col - cols / 2
+            const x1 = col + 1 - cols / 2
+
+            // глубина по Z через rows (ближе = меньше Z)
+            const z0 = rows - row
+            const z1 = rows - (row + 1)
+
+            const p00 = transform(x0, z0)
+            const p10 = transform(x1, z0)
+            const p11 = transform(x1, z1)
+            const p01 = transform(x0, z1)
 
             const cellGfx = new Graphics()
             let selected = false
@@ -78,13 +78,13 @@ export function createPerspectiveGrid({
                     .lineTo(p11.x, p11.y)
                     .lineTo(p01.x, p01.y)
                     .closePath()
-                    // fill ОБЯЗАТЕЛЕН для hit-test
                     .fill({
                         color: fillColor,
-                        alpha: selected ? 0.25 : 0,
+                        alpha: 0
+                        // alpha: selected ? 0.25 : 0,
                     })
                     .stroke({
-                        width: lineWidth,
+                        width: selected ? 0 : lineWidth,
                         color: strokeColor,
                     })
             }
@@ -98,7 +98,7 @@ export function createPerspectiveGrid({
                 selected = !selected
                 redraw()
 
-                // НИЖНЯЯ (наибольшая) горизонтальная сторона
+                // нижняя (большая) сторона
                 const bottomWidth = distance(p01, p11)
                 const bottomMidLocal = midpoint(p01, p11)
                 const bottomMidGlobal = container.toGlobal(bottomMidLocal)
