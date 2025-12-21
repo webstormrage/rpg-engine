@@ -15,6 +15,7 @@ func New(dialector gorm.Dialector, sqlScript string) (*Store, error) {
 		return nil, fmt.Errorf("не удалось подключиться к базе данных: %w", err)
 	}
 
+	// TODO: сделать автомиграцию
 	err = db.Exec(sqlScript).Error
 	if err != nil {
 		return nil, fmt.Errorf("ошибка при выполнении миграционного скрипта: %w", err)

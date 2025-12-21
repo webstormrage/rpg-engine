@@ -4,15 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"rpg-engine/pkg/model"
 )
 
-type User struct {
-	ID   uint   `gorm:"primaryKey"`
-	Name string `gorm:"not null;unique"`
-}
-
-func (s *Store) CreateUser(name string) (*User, error) {
-	newUser := &User{
+func (s *Store) CreateUser(name string) (*model.User, error) {
+	newUser := &model.User{
 		Name: name,
 	}
 
@@ -25,8 +21,8 @@ func (s *Store) CreateUser(name string) (*User, error) {
 	return newUser, nil
 }
 
-func (s *Store) GetUser(name string) (*User, error) {
-	var user User
+func (s *Store) GetUser(name string) (*model.User, error) {
+	var user model.User
 
 	result := s.DB.Where("name = ?", name).First(&user)
 

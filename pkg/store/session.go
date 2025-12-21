@@ -4,24 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	locationMapper "rpg-engine/pkg/location-mapper"
+	"rpg-engine/pkg/model"
 )
 
-type Session struct {
-	ID   uint   `gorm:"primaryKey"`
-	Time int    `gorm:"not null;default:0"`
-	Name string `gorm:"not null;unique"`
-
-	CampaignID uint `gorm:"not null"`
-}
-
-func extractEntitiesFromLocation(tx *gorm.DB, loc *Location, dx int, dy int) error {
-	// TODO: c помощью location parser заполнить таблицу entitities (X, Y, depth, width, session_id)
-	// TODO: при нахождении нестандартного тега искать дочернюю
-}
-
-func (s *Store) CreateSession(name string, campaignID uint) (*Session, error) {
+func (s *Store) CreateSession(name string, campaignID uint) (*model.Session, error) {
 	err := s.DB.Transaction(func(tx *gorm.DB) error {
-		newSession := &Session{
+		newSession := &model.Session{
 			Name:       name,
 			CampaignID: campaignID, // Устанавливаем внешний ключ
 		}
@@ -32,13 +21,28 @@ func (s *Store) CreateSession(name string, campaignID uint) (*Session, error) {
 			return fmt.Errorf("ошибка при создании сессии: %w", sessionResult.Error)
 		}
 
-		var location Location
-		result := tx.Where("campaign_id = ? AND is_entry = TRUE", campaignID).First(&location)
+		var entryLocation model.Location
+		result := tx.Where("campaign_id = ? AND is_entry = TRUE", campaignID).First(&entryLocation)
 
 		if result.Error != nil {
 			return result.Error
 		}
-		err := extractEntitiesFromLocation(tx, &location, 0, 0)
+
+		var locations []model.Location
+		result = tx.Where("campaign_id = ? AND is_entry", campaignID).Find(&locations)
+
+		var locationMapping map[string]model.Location
+		for _, location := range locations {
+			locationMapping[location.Name] = location
+		}
+
+		entities, err := locationMapper.MapLocationToEntities(&entryLocation, locationMapping, 0, 0)
+		for _, entity := range entities {
+			result := tx.Create(&entity)
+			if result.Error != nil {
+				return result.Error
+			}
+		}
 		if err != nil {
 			return err
 		}
@@ -55,8 +59,8 @@ func (s *Store) CreateSession(name string, campaignID uint) (*Session, error) {
 	return session, nil
 }
 
-func (s *Store) GetSession(name string) (*Session, error) {
-	var session Session
+func (s *Store) GetSession(name string) (*model.Session, error) {
+	var session model.Session
 
 	result := s.DB.Where("name = ?", name).First(&session)
 

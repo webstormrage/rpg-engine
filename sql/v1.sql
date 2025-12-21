@@ -51,14 +51,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_one_entry_per_campaign
 CREATE TABLE IF NOT EXISTS entities (
                           id SERIAL,
                           name TEXT NOT NULL,
-                          x INTEGER,
-                          y INTEGER,
+                          x INTEGER NOT NULL,
+                          y INTEGER NOT NULL,
                           width INTEGER NOT NULL DEFAULT 1,
-                          height INTEGER NOT NULL DEFAULT 1,
+                          depth INTEGER NOT NULL DEFAULT 1,
                           parent_entity_id INTEGER,
                           parent_slot TEXT,
                           session_id INTEGER NOT NULL,
-
+                          marker TEXT NOT NULL DEFAULT '',
+                          CONSTRAINT chk_max_dimensions CHECK (depth >= 1 AND depth <= 4 AND width >= 1 AND width <= 4),
                           CONSTRAINT pk_entities PRIMARY KEY (id),
 
     -- Внешний ключ на саму себя
@@ -73,13 +74,6 @@ CREATE TABLE IF NOT EXISTS entities (
     -- Проверяет, что ID не равен Parent ID.
     -- Если parent_entity_id IS NULL, условие возвращает NULL, что допустимо для CHECK.
                           CONSTRAINT chk_entities_no_self_parent CHECK (id <> parent_entity_id),
-
-    -- Логика: Либо координаты на карте, либо в контейнере
-                          CONSTRAINT chk_entities_position_or_parent CHECK (
-                              (parent_entity_id IS NULL AND x IS NOT NULL AND y IS NOT NULL)
-                                  OR
-                              (parent_entity_id IS NOT NULL AND x IS NULL AND y IS NULL)
-                              ),
 
     -- Логика: Слот только внутри родителя
                           CONSTRAINT chk_entities_slot_requires_parent CHECK (

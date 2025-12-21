@@ -4,15 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"rpg-engine/pkg/model"
 )
 
-type Campaign struct {
-	ID   uint   `gorm:"primaryKey"`
-	Name string `gorm:"not null;unique"`
-}
-
-func (s *Store) CreateCampaign(name string) (*Campaign, error) {
-	newCampaign := &Campaign{
+func (s *Store) CreateCampaign(name string) (*model.Campaign, error) {
+	newCampaign := &model.Campaign{
 		Name: name,
 	}
 
@@ -25,8 +21,8 @@ func (s *Store) CreateCampaign(name string) (*Campaign, error) {
 	return newCampaign, nil
 }
 
-func (s *Store) GetCampaign(name string) (*Campaign, error) {
-	var campaign Campaign
+func (s *Store) GetCampaign(name string) (*model.Campaign, error) {
+	var campaign model.Campaign
 
 	result := s.DB.Where("name = ?", name).First(&campaign)
 

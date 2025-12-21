@@ -30,7 +30,7 @@
     <!--Хозяйское помещение-->
     <room x="0" y="15" width="20" depth="7" />
     <door x="12" y="15" width="1" depth="1" />
-    <furnance x="9" y="15" width="2" depth="1"/>
+    <furnace x="9" y="15" width="2" depth="1"/>
     <table x="9" y="17" width="2" depth="1" />
 
     <kip x="1" y="16" depth="2" width="1" />

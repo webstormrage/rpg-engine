@@ -31,12 +31,14 @@ const sqliteMigrationSQL = `
     -- Entities
     CREATE TABLE entities (
         id INTEGER PRIMARY KEY, 
-        name TEXT NOT NULL, x INTEGER, y INTEGER, 
-        width INTEGER NOT NULL DEFAULT 1, height INTEGER NOT NULL DEFAULT 1, 
+        name TEXT NOT NULL, x INTEGER NOT NULL, y INTEGER NOT NULL, 
+        width INTEGER NOT NULL DEFAULT 1, depth INTEGER NOT NULL DEFAULT 1, 
         parent_entity_id INTEGER, parent_slot TEXT, session_id INTEGER NOT NULL,
         FOREIGN KEY (parent_entity_id) REFERENCES entities(id) ON DELETE SET NULL,
         FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
         UNIQUE (parent_entity_id, parent_slot)
+        marker TEXT NOT NULL DEFAULT '', 
+        CONSTRAINT chk_max_dimensions CHECK (depth >= 0 AND depth <= 4 AND width >= 0 AND width <= 4)
         -- CHECK constraints omitted/ignored by SQLite
     );
     -- Roles
@@ -69,6 +71,7 @@ func TestNew_CreatesDefaultRecords(t *testing.T) {
 
 	dialector := gsqlite.Open("file::memory:?cache=shared")
 
+	// TODO: убрать миграцию
 	s, err := New(dialector, sqliteMigrationSQL)
 
 	r.NoError(err, "New() не должна возвращать ошибку при инициализации и миграции")

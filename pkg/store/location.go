@@ -2,19 +2,11 @@ package store
 
 import (
 	"errors"
+	"rpg-engine/pkg/model"
 )
 
-type Location struct {
-	ID      uint   `gorm:"primaryKey"`
-	Name    string `gorm:"not null;unique"`
-	Xml     string `gorm:"not null"`
-	IsEntry bool   `gorm:"not null"`
-
-	CampaignID uint `gorm:"not null"`
-}
-
-func (s *Store) CreateLocation(name string, xml string, campaignId uint, isEntry bool) (Location, error) {
-	location := Location{
+func (s *Store) CreateLocation(name string, xml string, campaignId uint, isEntry bool) (model.Location, error) {
+	location := model.Location{
 		Name:       name,
 		Xml:        xml,
 		CampaignID: campaignId,
@@ -24,27 +16,27 @@ func (s *Store) CreateLocation(name string, xml string, campaignId uint, isEntry
 	result := s.DB.Create(&location)
 
 	if result.Error != nil {
-		return Location{}, result.Error
+		return model.Location{}, result.Error
 	}
 
 	return location, nil
 }
 
-func (s *Store) UpdateLocation(loc *Location) (Location, error) {
+func (s *Store) UpdateLocation(loc *model.Location) (model.Location, error) {
 	if loc.ID == 0 {
-		return Location{}, errors.New("location ID is required for update")
+		return model.Location{}, errors.New("location ID is required for update")
 	}
 
 	result := s.DB.Save(loc)
 
 	if result.Error != nil {
-		return Location{}, result.Error
+		return model.Location{}, result.Error
 	}
 
 	return *loc, nil
 }
 
-func (s *Store) DeleteLocation(loc *Location) error {
+func (s *Store) DeleteLocation(loc *model.Location) error {
 	result := s.DB.Delete(loc)
 
 	if result.Error != nil {
