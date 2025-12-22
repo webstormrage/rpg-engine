@@ -54,11 +54,8 @@ async function main() {
     const bg = new Sprite(bgTexture)
     world.addChild(bg)
 
-    const grid = createPerspectiveGrid({
-        cells: createCells(6, 10),
-        cellSize: 150,
-        angle: Math.PI * 0.489,
-    })
+    const cells = createCells(6, 10, 150, Math.PI * 0.489);
+    const grid = createPerspectiveGrid(cells);
     world.addChild(grid)
 
     /* ================== LAYOUT ================== */

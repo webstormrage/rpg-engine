@@ -13,19 +13,9 @@ const sprites:Record<string, Texture> = {
     merchant: await Assets.load('/merchant.png')
 };
 
-type PerspectiveGridOptions = {
-    cells: Cell[],
-    cellSize: number
-    angle: number
-}
-
 const GRID_COLOR = 0x00ffaa;
 
-export function createPerspectiveGrid({
-                                          cells,
-                                          cellSize,
-                                          angle,
-                                      }: PerspectiveGridOptions) {
+export function createPerspectiveGrid(cells: Cell[]) {
     const container = new Container()
 
     cells.forEach((cell) => {
@@ -36,10 +26,10 @@ export function createPerspectiveGrid({
         const z1 = cell.grid.rows - (cell.row + 1)
 
         // 4 угла трапеции
-        const p00 = transform(x0, z0, angle, cellSize)
-        const p10 = transform(x1, z0, angle, cellSize)
-        const p11 = transform(x1, z1, angle, cellSize)
-        const p01 = transform(x0, z1, angle, cellSize)
+        const p00 = transform(x0, z0, cell.grid)
+        const p10 = transform(x1, z0, cell.grid)
+        const p11 = transform(x1, z1, cell.grid)
+        const p01 = transform(x0, z1, cell.grid)
 
         const cellGfx = new Graphics()
 
