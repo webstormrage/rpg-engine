@@ -2,6 +2,7 @@ import './style.css'
 import {Application, Assets, Container, Sprite} from 'pixi.js'
 import { createPerspectiveGrid } from './perspective-grid'
 import { createCells } from "./cells.ts";
+import {getAngle, getCols, getRows, getSize} from "./tools.ts";
 
 /* ================== INPUT ================== */
 const keys: Record<string, boolean> = {}
@@ -24,7 +25,6 @@ const CANVAS_HEIGHT = 533*1.5
 const BASE_WIDTH = 800
 const BASE_HEIGHT = 533
 
-/* ================== MAIN ================== */
 async function main() {
     const app = new Application()
 
@@ -54,11 +54,11 @@ async function main() {
     const bg = new Sprite(bgTexture)
     world.addChild(bg)
 
-    const cells = createCells(6, 10, 150, Math.PI * 0.489);
-    const grid = createPerspectiveGrid(cells);
+    const cells = createCells(getRows(), getCols(), getSize(), Math.PI * getAngle());
+    let grid = createPerspectiveGrid(cells);
     world.addChild(grid)
 
-    /* ================== LAYOUT ================== */
+
     function layoutWorld() {
         const scale = Math.min(
             CANVAS_WIDTH / BASE_WIDTH,
@@ -74,6 +74,16 @@ async function main() {
         bg.y = BASE_HEIGHT - bg.height
 
         // grid position
+        grid.x = BASE_WIDTH / 2
+        grid.y = BASE_HEIGHT
+    }
+
+    //@ts-ignore
+    window.recalculateGrid = function(){
+        grid.destroy();
+        const cells = createCells(getRows(), getCols(), getSize(), Math.PI * getAngle());
+        grid = createPerspectiveGrid(cells);
+        world.addChild(grid)
         grid.x = BASE_WIDTH / 2
         grid.y = BASE_HEIGHT
     }

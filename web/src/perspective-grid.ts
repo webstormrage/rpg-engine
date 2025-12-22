@@ -63,7 +63,7 @@ export function createPerspectiveGrid(cells: Cell[]) {
             }
             const tool = getTool();
 
-            if (tool.type == 'sprite') {
+            if (tool.type == 'sprite' && !cell.disabled) {
                 const texture = sprites[tool.name]
                 if (cell.sprite) {
                     cell.sprite.destroy()
@@ -88,7 +88,7 @@ export function createPerspectiveGrid(cells: Cell[]) {
                 return
             }
 
-            if (tool.type === 'grid') {
+            if (tool.type === 'grid' && cell.sprite == null) {
                 cell.disabled = !cell.disabled
                 redraw()
             }
