@@ -100,6 +100,10 @@ async function main() {
         if (keys['ArrowRight']) world.x -= CAMERA_SPEED
         if (keys['ArrowUp'])    world.y += CAMERA_SPEED
         if (keys['ArrowDown'])  world.y -= CAMERA_SPEED
+        if (keys['Backspace']) {
+            world.x = 0;
+            world.y = 0;
+        }
     })
 }
 
