@@ -1,6 +1,7 @@
 import './style.css'
-import { Application, Assets, Container, Sprite } from 'pixi.js'
+import {Application, Assets, Container, Sprite} from 'pixi.js'
 import { createPerspectiveGrid } from './perspective-grid'
+import { createCells } from "./cells.ts";
 
 /* ================== INPUT ================== */
 const keys: Record<string, boolean> = {}
@@ -53,11 +54,9 @@ async function main() {
     const bg = new Sprite(bgTexture)
     world.addChild(bg)
 
-    /* ================== GRID ================== */
     const grid = createPerspectiveGrid({
-        rows: 6,
-        cols: 10,
-        cell: 150,
+        cells: createCells(6, 10),
+        cellSize: 150,
         angle: Math.PI * 0.489,
     })
     world.addChild(grid)
