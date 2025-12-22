@@ -1,68 +1,33 @@
 import {
     Container,
     Graphics,
-    Point,
     Sprite,
     Texture,
-    FederatedPointerEvent,
+    FederatedPointerEvent, Assets,
 } from 'pixi.js'
+import { transform, midpoint, distance } from "./utils.ts";
+import {getTool} from "./tools.ts";
+
+const sprites:Record<string, Texture> = {
+    merchant: await Assets.load('/merchant.png')
+};
 
 type PerspectiveGridOptions = {
     rows: number
     cols: number
     cell: number
     angle: number
-    cameraDistance: number
-    npcTexture?: Texture
-    strokeColor?: number
-    fillColor?: number
-    lineWidth?: number
 }
+
+const GRID_COLOR = 0x00ffaa;
 
 export function createPerspectiveGrid({
                                           rows,
                                           cols,
                                           cell,
                                           angle,
-                                          cameraDistance,
-                                          npcTexture,
-                                          strokeColor = 0x00ffaa,
-                                          fillColor = 0x00ffaa,
-                                          lineWidth = 1,
                                       }: PerspectiveGridOptions) {
     const container = new Container()
-
-    // локальная система координат
-    const cx = 0
-    const cy = 0
-
-    // перспектива
-    function project(x: number, y: number, z: number) {
-        const scale = 1 / (1 + z / cameraDistance)
-        return new Point(x * scale + cx, y * scale + cy)
-    }
-
-    // 3D → 2D (как в эталонном canvas-примере)
-    function transform(x: number, z: number) {
-        const X = x * cell
-        const Z = z * cell
-
-        const Yr = -Z * Math.sin(angle)
-        const Zr =  Z * Math.cos(angle)
-
-        return project(X, Yr, Zr)
-    }
-
-    function distance(a: Point, b: Point) {
-        return Math.hypot(b.x - a.x, b.y - a.y)
-    }
-
-    function midpoint(a: Point, b: Point) {
-        return new Point(
-            (a.x + b.x) / 2,
-            (a.y + b.y) / 2
-        )
-    }
 
     // ===== CELLS =====
     for (let row = 0; row < rows; row++) {
@@ -76,10 +41,10 @@ export function createPerspectiveGrid({
             const z1 = rows - (row + 1)
 
             // 4 угла трапеции
-            const p00 = transform(x0, z0)
-            const p10 = transform(x1, z0)
-            const p11 = transform(x1, z1)
-            const p01 = transform(x0, z1)
+            const p00 = transform(x0, z0, angle, cell)
+            const p10 = transform(x1, z0, angle, cell)
+            const p11 = transform(x1, z1, angle, cell)
+            const p01 = transform(x0, z1, angle, cell)
 
             const cellGfx = new Graphics()
             let selected = false
@@ -94,15 +59,14 @@ export function createPerspectiveGrid({
                     .lineTo(p11.x, p11.y)
                     .lineTo(p01.x, p01.y)
                     .closePath()
-                    // fill обязателен для hit-test
                     .fill({
-                        color: fillColor,
+                        color: GRID_COLOR,
                         alpha: 0
                         // alpha: selected ? 0.25 : 0,
                     })
                     .stroke({
-                        width: selected ? 0 : lineWidth,
-                        color: strokeColor,
+                        width: selected ? 0 : 1,
+                        color: GRID_COLOR,
                     })
             }
 
@@ -112,28 +76,26 @@ export function createPerspectiveGrid({
             cellGfx.cursor = 'pointer'
 
             cellGfx.on('pointerdown', (e: FederatedPointerEvent) => {
-                const isRightClick =
-                    e.buttons === 2 ||
-                    e.nativeEvent?.button === 2
+                if (e.button !== 0) {
+                    return;
+                }
+                const tool = getTool();
 
-                // ===== RIGHT CLICK → TOGGLE NPC =====
-                if (isRightClick && npcTexture) {
-
-                    // 🔴 если NPC уже есть → удалить
+                if (tool.type == 'sprite') {
+                    const texture = sprites[tool.name]
                     if (npcSprite) {
                         npcSprite.destroy()
                         npcSprite = null
                         return
                     }
 
-                    // 🟢 если NPC нет → создать
                     const bottomWidth = distance(p01, p11)
                     const bottomMid = midpoint(p01, p11)
 
-                    const npc = new Sprite(npcTexture)
+                    const npc = new Sprite(texture)
                     npc.anchor.set(0.5, 1)
 
-                    const scale = bottomWidth / npcTexture.width
+                    const scale = bottomWidth / texture.width
                     npc.scale.set(scale)
 
                     npc.position.copyFrom(bottomMid)
@@ -144,13 +106,11 @@ export function createPerspectiveGrid({
                     return
                 }
 
-                // ===== LEFT CLICK → TOGGLE CELL =====
-                if (e.button === 0) {
+                if (tool.type === 'grid') {
                     selected = !selected
                     redraw()
                 }
             })
-
 
             container.addChild(cellGfx)
         }

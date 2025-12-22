@@ -2,7 +2,8 @@ import './style.css'
 import { Application, Assets, Container, Sprite } from 'pixi.js'
 import { createPerspectiveGrid } from './perspective-grid'
 
-const keys:Record<string, boolean> = {};
+/* ================== INPUT ================== */
+const keys: Record<string, boolean> = {}
 
 window.addEventListener('keydown', (e) => {
     keys[e.key] = true
@@ -12,14 +13,26 @@ window.addEventListener('keyup', (e) => {
     keys[e.key] = false
 })
 
-const CAMERA_SPEED = 10 // px за кадр
+/* ================== CONSTANTS ================== */
+const CAMERA_SPEED = 10
 
+const CANVAS_WIDTH = 800*1.5
+const CANVAS_HEIGHT = 533*1.5
+
+// логическое разрешение мира
+const BASE_WIDTH = 800
+const BASE_HEIGHT = 533
+
+/* ================== MAIN ================== */
 async function main() {
     const app = new Application()
 
     await app.init({
-        resizeTo: window,
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
         backgroundAlpha: 1,
+        autoDensity: true,
+        resolution: window.devicePixelRatio || 1,
     })
 
     document.body.appendChild(app.canvas)
@@ -29,57 +42,53 @@ async function main() {
         e.preventDefault()
     })
 
-    // ===== WORLD (общая система координат) =====
+    /* ================== WORLD ================== */
     const world = new Container()
     app.stage.addChild(world)
 
-    // ===== ASSETS =====
+    /* ================== ASSETS ================== */
     const bgTexture = await Assets.load('/tavern.png')
-    const npcTexture = await Assets.load('/merchant.png')
 
-    // ===== BACKGROUND =====
+    /* ================== BACKGROUND ================== */
     const bg = new Sprite(bgTexture)
     world.addChild(bg)
 
-    // ===== GRID =====
+    /* ================== GRID ================== */
     const grid = createPerspectiveGrid({
         rows: 6,
         cols: 10,
-        cell: 250,
-        angle: Math.PI * 0.493,
-        cameraDistance: 10,
-        npcTexture,
+        cell: 150,
+        angle: Math.PI * 0.489,
     })
     world.addChild(grid)
 
-    // логическое разрешение
-    const BASE_WIDTH = 1280
-    const BASE_HEIGHT = 720
-
-    function resizeWorld() {
+    /* ================== LAYOUT ================== */
+    function layoutWorld() {
         const scale = Math.min(
-            app.screen.width / BASE_WIDTH,
-            app.screen.height / BASE_HEIGHT
+            CANVAS_WIDTH / BASE_WIDTH,
+            CANVAS_HEIGHT / BASE_HEIGHT
         )
 
         world.scale.set(scale)
 
-        // background (логические координаты)
+        // background (в логических координатах)
         const bgScale = BASE_WIDTH / bgTexture.width
         bg.scale.set(bgScale)
         bg.x = 0
         bg.y = BASE_HEIGHT - bg.height
 
-        // grid
+        // grid position
         grid.x = BASE_WIDTH / 2
-        grid.y = BASE_HEIGHT// - 40
+        grid.y = BASE_HEIGHT
     }
 
-    resizeWorld()
-    window.addEventListener('resize', resizeWorld)
-    //@ts-ignore
-    window.world = world;
+    layoutWorld()
 
+    // для дебага
+    // @ts-ignore
+    window.world = world
+
+    /* ================== UPDATE ================== */
     app.ticker.add(() => {
         if (keys['ArrowLeft'])  world.x += CAMERA_SPEED
         if (keys['ArrowRight']) world.x -= CAMERA_SPEED
