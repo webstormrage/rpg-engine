@@ -8,10 +8,8 @@ import {
 import { transform, midpoint, distance } from "./utils.ts";
 import { getTool } from "./tools.ts";
 import {type Cell} from "./cells.ts";
+import {sprites} from "./assets.ts";
 
-const sprites:Record<string, Texture> = {
-    merchant: await Assets.load('/merchant.png')
-};
 
 const GRID_COLOR = 0x00ffaa;
 

@@ -3,6 +3,8 @@ import {Application, Assets, Container, Sprite} from 'pixi.js'
 import { createPerspectiveGrid } from './perspective-grid'
 import { createCells } from "./cells.ts";
 import {getAngle, getCols, getRows, getSize} from "./tools.ts";
+import ReactDOM from 'react-dom/client'
+import {Editor} from "./editor/editor.tsx";
 
 /* ================== INPUT ================== */
 const keys: Record<string, boolean> = {}
@@ -36,7 +38,8 @@ async function main() {
         resolution: window.devicePixelRatio || 1,
     })
 
-    document.body.appendChild(app.canvas)
+    const canvasWrapper = document.getElementById('canvas');
+    canvasWrapper!.appendChild(app.canvas);
 
     // отключаем контекстное меню (ПКМ)
     app.canvas.addEventListener('contextmenu', (e) => {
@@ -78,15 +81,15 @@ async function main() {
         grid.y = BASE_HEIGHT
     }
 
-    //@ts-ignore
-    window.recalculateGrid = function(){
+    const recalculateGrid = function(){
         grid.destroy();
         const cells = createCells(getRows(), getCols(), getSize(), Math.PI * getAngle());
         grid = createPerspectiveGrid(cells);
         world.addChild(grid)
         grid.x = BASE_WIDTH / 2
         grid.y = BASE_HEIGHT
-    }
+    };
+    document.addEventListener('recalculate-grid', recalculateGrid);
 
     layoutWorld()
 
@@ -108,3 +111,10 @@ async function main() {
 }
 
 main()
+
+
+ReactDOM.createRoot(
+    document.getElementById('sidebar')!
+).render(
+     <Editor />
+)

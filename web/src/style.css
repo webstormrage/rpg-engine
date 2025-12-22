@@ -9,3 +9,8 @@ html, body {
 canvas {
   display: block;
 }
+
+.container {
+  display: flex;
+  align-items: flex-start;
+}
