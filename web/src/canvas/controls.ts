@@ -3,6 +3,18 @@ import {type Application, type Renderer, type Container, type ContainerChild} fr
 
 const keys: Record<string, boolean> = {}
 
+function isTyping(): boolean {
+    const el = document.activeElement
+    if (!el) return false
+
+    const tag = el.tagName
+    return (
+        tag === 'INPUT' ||
+        tag === 'TEXTAREA' ||
+        (el as HTMLElement).isContentEditable
+    )
+}
+
 window.addEventListener('keydown', (e) => {
     keys[e.key] = true
 });
@@ -16,6 +28,7 @@ export const initControls = (app:  Application<Renderer>, world:  Container<Cont
         e.preventDefault()
     });
     app.ticker.add(() => {
+        if (isTyping()) return;
         if (keys['ArrowLeft']) world.x += CAMERA_SPEED
         if (keys['ArrowRight']) world.x -= CAMERA_SPEED
         if (keys['ArrowUp']) world.y += CAMERA_SPEED

@@ -1,49 +1,27 @@
-import {Application, Assets, Container, Sprite} from 'pixi.js'
 import {renderDecorations} from './decorations.ts'
 import {on} from "../bridge/bridge.ts";
 import type {Scene} from "../types/types.ts";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, BASE_WIDTH, BASE_HEIGHT} from "./constants.ts";
 import {initControls} from "./controls.ts";
+import {renderBackground} from "./background.ts";
+import {initApp} from "./app.ts";
+import {renderWorld} from "./world.ts";
 
 export async function renderScene(scene: Scene) {
     /* ================== CANVAS ================== */
-    const app = new Application();
-    await app.init({
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
-        backgroundAlpha: 1,
-        autoDensity: true,
-        resolution: window.devicePixelRatio || 1,
-    });
-    const canvasWrapper = document.getElementById('canvas');
-    canvasWrapper!.appendChild(app.canvas);
+    const app = await initApp();
 
-    /* ================== WORLD ================== */
-    const world = new Container()
-    app.stage.addChild(world)
-    const scale = Math.min(
-        CANVAS_WIDTH / BASE_WIDTH,
-        CANVAS_HEIGHT / BASE_HEIGHT
-    );
-    world.scale.set(scale);
+    const world = renderWorld(app);
 
-    /* ================== BACKGROUND ================== */
-    const bgTexture = await Assets.load(scene.background);
-    const bg = new Sprite(bgTexture);
-    world.addChild(bg);
-    const bgScale = BASE_WIDTH / bgTexture.width;
-    bg.scale.set(bgScale);
-    bg.x = 0;
-    bg.y = BASE_HEIGHT - bg.height;
+    await renderBackground(scene, { container: world });
 
-    /* ================== DECORATIONS ================== */
+
     let decorations = renderDecorations(scene, { container: world });
-    const render = function (scene: Scene) {
+    const renderD = function (scene: Scene) {
         decorations.destroy();
         decorations = renderDecorations(scene, { container: world });
     };
-    on('on.scene.update', render);
+    on('on.scene.update', renderD);
 
-    /* ================== CONTROLS ================== */
+
     initControls(app, world);
 }

@@ -49,9 +49,9 @@ on('cell.click', (source: Cell) => {
         return;
     }
     const tool = getTool();
-    if(tool.type === 'grid'){
+    if(tool.type === 'grid' && !target.sprite){
         target.disabled = !target.disabled;
-    } else if(tool.type === 'sprite') {
+    } else if(tool.type === 'sprite' && !target.disabled) {
         if(target.sprite != null){
             target.sprite = null;
         } else {
