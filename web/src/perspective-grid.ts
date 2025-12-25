@@ -2,10 +2,12 @@ import {
     Container,
     Graphics,
     Sprite,
-    FederatedPointerEvent, type ContainerChild,
+    ColorMatrixFilter,
+    FederatedPointerEvent,
+    type ContainerChild,
 } from 'pixi.js'
 import { transform, midpoint, distance } from "./utils.ts";
-import {scaleFactor, sprites} from "./assets.ts";
+import {brightnessFactor, scaleFactor, sprites} from "./assets.ts";
 import type {Scene} from "./scene.ts";
 import {emit, on, name, off} from "./bridge.ts";
 import type {Cell, Grid} from "./cells.ts";
@@ -55,17 +57,21 @@ function renderCell(cell: Cell, ctx: RenderContext) {
     }
 
     if (!ctx.npcSprite && cell.sprite) {
-        const texture = sprites[cell.sprite]
+        const texture = sprites[cell.sprite];
 
         const bottomWidth = distance(p01, p11)
-        const bottomMid = midpoint(p01, p11)
+        const bottomMid = midpoint(p01, p11);
 
-        ctx.npcSprite = new Sprite(texture)
-        ctx.npcSprite.anchor.set(0.5, 1)
+        ctx.npcSprite = new Sprite(texture);
+        ctx.npcSprite.anchor.set(0.5, 1);
 
-        const scale = bottomWidth / texture.width
-        ctx.npcSprite.scale.set(scale * scaleFactor[cell.sprite])
-        ctx.npcSprite.position.copyFrom(bottomMid)
+        const scale = bottomWidth / texture.width;
+        ctx.npcSprite.scale.set(scale * scaleFactor[cell.sprite]);
+        const colorMatrix = new ColorMatrixFilter();
+        ctx.npcSprite.filters = [colorMatrix];
+        colorMatrix.brightness(brightnessFactor[cell.sprite], false);
+        ctx.npcSprite.position.copyFrom(bottomMid);
+        ctx.npcSprite.zIndex = cell.row;
 
         container.addChild(ctx.npcSprite)
     }
@@ -74,6 +80,7 @@ function renderCell(cell: Cell, ctx: RenderContext) {
 // TODO - это создание мира (без бекграунда) а не сетки
 export function createPerspectiveGrid(scene: Scene) {
     const container = new Container();
+    container.sortableChildren = true;
     const {cells, grid} = scene;
 
     cells.forEach((cell) => {

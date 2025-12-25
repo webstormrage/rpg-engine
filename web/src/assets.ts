@@ -1,5 +1,12 @@
 import {Assets, Texture} from "pixi.js";
 
+export const brightnessFactor:Record<string,number> = {
+    merchantEnface: 1,
+    merchantProfile: 0.5,
+    merchantBack: 0.4,
+    merchantLay: 0.6,
+};
+
 export const scaleFactor:Record<string,number> = {
     merchantEnface: 1,
     merchantProfile: 0.95,
