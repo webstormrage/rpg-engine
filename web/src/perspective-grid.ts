@@ -5,7 +5,7 @@ import {
     FederatedPointerEvent, type ContainerChild,
 } from 'pixi.js'
 import { transform, midpoint, distance } from "./utils.ts";
-import { sprites } from "./assets.ts";
+import {scaleFactor, sprites} from "./assets.ts";
 import type {Scene} from "./scene.ts";
 import {emit, on, name, off} from "./bridge.ts";
 import type {Cell, Grid} from "./cells.ts";
@@ -64,7 +64,7 @@ function renderCell(cell: Cell, ctx: RenderContext) {
         ctx.npcSprite.anchor.set(0.5, 1)
 
         const scale = bottomWidth / texture.width
-        ctx.npcSprite.scale.set(scale)
+        ctx.npcSprite.scale.set(scale * scaleFactor[cell.sprite])
         ctx.npcSprite.position.copyFrom(bottomMid)
 
         container.addChild(ctx.npcSprite)

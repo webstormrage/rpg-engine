@@ -56,7 +56,7 @@ export const Editor = () => {
                 emit('tool.update', { type: 'grid'});
                 break;
             case 'sprite':
-                emit('tool.update', { type: 'sprite', name: 'merchant'});
+                emit('tool.update', { type: 'sprite', name: 'merchantEnface'});
                 break;
         }
     }

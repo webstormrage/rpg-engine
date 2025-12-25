@@ -6,12 +6,10 @@ import styles from './sprite-controls.module.css';
 import {emit} from "../../bridge.ts";
 import type {Tool} from "../../tools.ts";
 
-const options:SelectProps['options'] = [
-    {
-        value: 'merchant',
-        label: 'merchant'
-    }
-];
+const options:SelectProps['options'] = Object.keys(previews).map(name => ({
+    value: name,
+    label: name
+}));
 
 type Props = {
     tool: Tool;
