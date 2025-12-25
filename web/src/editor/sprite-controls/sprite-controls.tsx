@@ -1,10 +1,10 @@
 import {Image, Select} from "antd";
 import type {SelectProps} from "antd";
-import {previews} from "../../assets.ts";
+import {previews} from "../../assets/assets.ts";
 import { type FC } from "react";
 import styles from './sprite-controls.module.css';
-import {emit} from "../../bridge.ts";
-import type {Tool} from "../../tools.ts";
+import {emit} from "../../bridge/bridge.ts";
+import type {Tool} from "../../state/tool.ts";
 
 const options:SelectProps['options'] = Object.keys(previews).map(name => ({
     value: name,

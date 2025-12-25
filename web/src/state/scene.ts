@@ -1,29 +1,23 @@
-import type {Scene} from "./scene.ts";
-import {type Cell, createCells, type Grid} from "./cells.ts";
-import {emit, name, on} from "./bridge.ts";
+import {emit, name, on} from "../bridge/bridge.ts";
+import type {Cell, Grid, Scene} from "../types/types.ts";
+import {getTool} from "./tool.ts";
 
-export type Tool = {
-    type: 'grid'
-} | {
-    type: 'sprite',
-    name: string
+const createCells = (rows: number, cols: number) => {
+    const cells:Cell[] = [];
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            cells.push({
+                row,
+                col,
+                sprite: null,
+                disabled: false,
+            });
+        }
+    }
+    return cells;
 }
 
-let tool:Tool = {
-    type: 'grid'
-};
-
-export const initTool = () => {
-    emit('on.tool.init', tool);
-};
-
-on('tool.update', (source: Tool) => {
-    tool = source;
-    emit('on.tool.update', tool);
-});
-
-
-const scene:Scene = {
+const scene: Scene = {
     background: '/tavern.png',
     grid: {
         cols: 10,
@@ -54,6 +48,7 @@ on('cell.click', (source: Cell) => {
     if(!target) {
         return;
     }
+    const tool = getTool();
     if(tool.type === 'grid'){
         target.disabled = !target.disabled;
     } else if(tool.type === 'sprite') {
@@ -65,7 +60,6 @@ on('cell.click', (source: Cell) => {
     }
     emit(name('cell.update', target.col, target.row), target);
 });
-
 
 export const initScene = () => {
     emit('on.scene.init', scene);

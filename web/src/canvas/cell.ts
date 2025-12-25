@@ -1,27 +1,18 @@
-import {
-    Container,
-    Graphics,
-    Sprite,
-    ColorMatrixFilter,
-    FederatedPointerEvent,
-    type ContainerChild,
-} from 'pixi.js'
-import { transform, midpoint, distance } from "./utils.ts";
-import {brightnessFactor, scaleFactor, sprites} from "./assets.ts";
-import type {Scene} from "./scene.ts";
-import {emit, on, name, off} from "./bridge.ts";
-import type {Cell, Grid} from "./cells.ts";
+import type {Cell, Grid} from "../types/types.ts";
+import {ColorMatrixFilter, Container, type ContainerChild, Graphics, Sprite} from "pixi.js";
+import {distance, midpoint, transform} from "./utils.ts";
+import {brightnessFactor, scaleFactor, sprites} from "../assets/assets.ts";
 
 const GRID_COLOR = 0x00ffaa;
 
-type RenderContext = {
+export type CellRenderContext = {
     grid: Grid,
     cellGfx: Graphics,
     npcSprite:Sprite|null,
     container: Container<ContainerChild>
 };
 
-function renderCell(cell: Cell, ctx: RenderContext) {
+export function renderCell(cell: Cell, ctx: CellRenderContext) {
     const { grid, cellGfx, container } = ctx;
     const x0 = cell.col - grid.cols / 2
     const x1 = cell.col + 1 - grid.cols / 2
@@ -75,47 +66,4 @@ function renderCell(cell: Cell, ctx: RenderContext) {
 
         container.addChild(ctx.npcSprite)
     }
-}
-
-// TODO - это создание мира (без бекграунда) а не сетки
-export function createPerspectiveGrid(scene: Scene) {
-    const container = new Container();
-    container.sortableChildren = true;
-    const {cells, grid} = scene;
-
-    cells.forEach((cell) => {
-        const ctx: RenderContext = {
-            grid,
-            container,
-            cellGfx: new Graphics(),
-            npcSprite: null,
-        };
-
-        const { cellGfx } = ctx;
-        renderCell(cell,ctx);
-
-        cellGfx.eventMode = 'static';
-        cellGfx.cursor = 'pointer';
-
-        cellGfx.on('pointerdown', (e: FederatedPointerEvent) => {
-            if (e.button !== 0) {
-                return;
-            }
-
-            emit('cell.click', cell);
-        });
-
-        const render = (cell: Cell) => renderCell(cell, ctx);
-
-        on(name('cell.update', cell.col, cell.row), render);
-
-        cellGfx.on('destroyed', () => {
-            off(render);
-        });
-
-        container.addChild(cellGfx);
-    });
-
-
-    return container;
 }

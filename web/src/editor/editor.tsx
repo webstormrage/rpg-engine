@@ -2,10 +2,11 @@ import styles from './editor.module.css';
 import {Card, Tabs, Input, Form, Button} from "antd";
 import type { TabsProps } from 'antd';
 import {SpriteControls} from "./sprite-controls/sprite-controls.tsx";
-import {emit, on, off} from "../bridge.ts";
+import {emit, on, off} from "../bridge/bridge.ts";
 import {useEffect, useState} from "react";
-import type {Tool} from "../tools.ts";
-import type {Scene} from "../scene.ts";
+import type {Tool} from "../state/tools.ts";
+
+import type {Scene} from "../types/types.ts";
 
 const useTool = ():Tool|null => {
     const [tool, setTool] = useState<Tool|null>(null);
