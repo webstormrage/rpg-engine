@@ -1,69 +1,72 @@
-type Tool = {
+import type {Scene} from "./scene.ts";
+import {type Cell, createCells, type Grid} from "./cells.ts";
+import {emit, name, on} from "./bridge.ts";
+
+export type Tool = {
     type: 'grid'
 } | {
     type: 'sprite',
     name: string
 }
 
-let currentTool:Tool = {
+let tool:Tool = {
     type: 'grid'
 };
 
-export function getTool():Tool {
-    return currentTool;
-}
+export const initTool = () => {
+    emit('on.tool.init', tool);
+};
 
-export function setTool(tool: Tool){
-    currentTool = tool
-}
+on('tool.update', (source: Tool) => {
+    tool = source;
+    emit('on.tool.update', tool);
+});
 
-let rows = 6;
 
-export function getRows(){
-    return rows;
-}
+const scene:Scene = {
+    background: '/tavern.png',
+    grid: {
+        cols: 10,
+        rows: 6,
+        angle: 1.536,
+        size: 150
+    },
+    cells: createCells(6, 10),
+};
 
-export function setRows(r: number){
-    rows = r;
-}
+on('grid.update', (source: Partial<Grid>) => {
+    const {
+        cols=scene.grid.cols,
+        rows=scene.grid.rows,
+        angle=scene.grid.angle,
+        size=scene.grid.size
+    } = source;
+    scene.grid.cols = cols;
+    scene.grid.rows = rows;
+    scene.grid.angle = angle;
+    scene.grid.size = size;
+    scene.cells =  createCells(rows, cols);
+    emit('on.scene.update', scene);
+});
 
-let cols = 10;
+on('cell.click', (source: Cell) => {
+    const target = scene.cells.find(c => c.col === source.col && c.row === source.row);
+    if(!target) {
+        return;
+    }
+    if(tool.type === 'grid'){
+        target.disabled = !target.disabled;
+    } else if(tool.type === 'sprite') {
+        if(target.sprite != null){
+            target.sprite = null;
+        } else {
+            target.sprite = tool.name;
+        }
+    }
+    emit(name('cell.update', target.col, target.row), target);
+});
 
-export function getCols(){
-    return cols;
-}
 
-export function setCols(c: number){
-    cols = c;
-}
-
-let size = 150;
-
-export function getSize(){
-    return size;
-}
-
-export function setSize(s: number){
-    size = s;
-}
-
-let angle = 0.489;
-
-export function getAngle(){
-    return angle;
-}
-
-export function setAngle(a: number){
-    angle = a;
-}
-
-// @ts-ignore
-window.setTool = setTool;
-// @ts-ignore
-window.setCols = setCols;
-// @ts-ignore
-window.setRows = setRows;
-// @ts-ignore
-window.setSize = setSize;
-// @ts-ignore
-window.setAngle = setAngle;
+export const initScene = () => {
+    emit('on.scene.init', scene);
+};

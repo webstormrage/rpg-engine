@@ -2,10 +2,42 @@ import styles from './editor.module.css';
 import {Card, Tabs, Input, Form, Button} from "antd";
 import type { TabsProps } from 'antd';
 import {SpriteControls} from "./sprite-controls/sprite-controls.tsx";
-import {getAngle, getCols, getRows, getSize, getTool, setAngle, setCols, setSize, setTool} from "../tools.ts";
+import {emit, on, off} from "../bridge.ts";
+import {useEffect, useState} from "react";
+import type {Tool} from "../tools.ts";
+import type {Scene} from "../scene.ts";
+
+const useTool = ():Tool|null => {
+    const [tool, setTool] = useState<Tool|null>(null);
+    useEffect(() => {
+        on('on.tool.init', setTool);
+        on('on.tool.update', setTool);
+        return () => {
+            off(setTool);
+        };
+    }, []);
+    return tool;
+};
+
+const useScene = ():Scene|null => {
+    const [scene, setScene] = useState<Scene|null>(null);
+    useEffect(() => {
+        on('on.scene.init', setScene);
+        on('on.scene.update', setScene);
+        return () => {
+            off(setScene);
+        };
+    }, []);
+    return scene;
+};
 
 export const Editor = () => {
     const [form] = Form.useForm();
+    const tool = useTool();
+    const scene = useScene();
+    useEffect(() => {
+        emit('on.ui.ready', {});
+    }, []);
     const items: TabsProps['items'] = [
         {
             key: 'grid',
@@ -15,41 +47,40 @@ export const Editor = () => {
         {
             key: 'sprite',
             label: 'Sprite mode',
-            children: <SpriteControls />,
+            children: tool && <SpriteControls tool={tool} />,
         },
     ];
     const handleChange = (toolType: string) => {
         switch (toolType){
             case 'grid':
-                setTool({ type: 'grid' });
+                emit('tool.update', { type: 'grid'});
                 break;
             case 'sprite':
-                setTool({ type: 'sprite', name: 'merchant'});
+                emit('tool.update', { type: 'sprite', name: 'merchant'});
                 break;
         }
     }
     const handleSubmit = (values: Record<string,number>) => {
         console.log(values);
-        setAngle(values.angle);
-        setCols(values.cols);
-        setRows(values.rows);
-        setSize(values.size);
-        document.dispatchEvent(new Event('recalculate-grid', {bubbles: true}));
+        emit('grid.update', values);
+    }
+    if(!tool || !scene){
+        return null;
     }
     return (
         <div className={styles.root}>
             <Card>
-                <Tabs items={items} onChange={handleChange} defaultActiveKey={getTool()?.type}/>
+                <Tabs items={items} onChange={handleChange} activeKey={tool?.type} />
             </Card>
             <Card>
                 <Form
                     layout="vertical"
                     form={form}
                     initialValues={{
-                        cols: getCols(),
-                        rows: getRows(),
-                        size: getSize(),
-                        angle: getAngle()
+                        cols: scene.grid.cols,
+                        rows: scene.grid.rows,
+                        size: scene.grid.size,
+                        angle: scene.grid.angle
                     }}
                     onFinish={handleSubmit}
                 >
@@ -63,7 +94,7 @@ export const Editor = () => {
                         <Input type='number' />
                     </Form.Item>
                     <Form.Item label="Angle" name="angle">
-                        <Input type='number' />
+                        <Input type='number' step={0.001}/>
                     </Form.Item>
                     <Form.Item>
                         <Button type="primary" htmlType="submit">Recalculate grid</Button>

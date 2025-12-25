@@ -1,25 +1,30 @@
 import {Image, Select} from "antd";
 import type {SelectProps} from "antd";
 import {previews} from "../../assets.ts";
-import {useState} from "react";
+import { type FC } from "react";
 import styles from './sprite-controls.module.css';
-import {getTool, setTool} from "../../tools.ts";
+import {emit} from "../../bridge.ts";
+import type {Tool} from "../../tools.ts";
 
 const options:SelectProps['options'] = [
     {
         value: 'merchant',
         label: 'merchant'
     }
-]
+];
 
-export const SpriteControls = () => {
-    const [value, setValue] = useState<string|null>(getTool().name);
+type Props = {
+    tool: Tool;
+}
+
+export const SpriteControls:FC<Props> = ({ tool }) => {
+    const sprite = tool.type === 'sprite' ? tool.name : '';
+    const src = tool.type === 'sprite' ? previews[tool.name] : '';
     const handleChange = (val: string) => {
-        setValue(val);
-        setTool({ type: 'sprite', name: val});
+        emit('tool.update', { type: 'sprite', name: val });
     };
     return (<div className={styles.flex}>
-        <Select options={options} onChange={handleChange} value={value} style={{width: 150}}/>
-        <Image src={previews[value]} height='50px' />
+        <Select options={options} onChange={handleChange} value={sprite} style={{width: 150}} />
+        <Image src={src} height='50px' />
     </div>)
 }

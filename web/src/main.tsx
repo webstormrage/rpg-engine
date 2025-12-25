@@ -1,10 +1,11 @@
 import './style.css'
 import {Application, Assets, Container, Sprite} from 'pixi.js'
 import { createPerspectiveGrid } from './perspective-grid'
-import { createCells } from "./cells.ts";
-import {getAngle, getCols, getRows, getSize} from "./tools.ts";
 import ReactDOM from 'react-dom/client'
 import {Editor} from "./editor/editor.tsx";
+import {on} from "./bridge.ts";
+import type {Scene} from "./scene.ts";
+import {initScene, initTool} from "./tools.ts";
 
 /* ================== INPUT ================== */
 const keys: Record<string, boolean> = {}
@@ -27,7 +28,11 @@ const CANVAS_HEIGHT = 533*1.5
 const BASE_WIDTH = 800
 const BASE_HEIGHT = 533
 
-async function main() {
+on('on.scene.init', (scene: Scene ) => {
+    main(scene);
+});
+
+async function main(scene: Scene) {
     const app = new Application()
 
     await app.init({
@@ -51,15 +56,14 @@ async function main() {
     app.stage.addChild(world)
 
     /* ================== ASSETS ================== */
-    const bgTexture = await Assets.load('/tavern.png')
+    const bgTexture = await Assets.load(scene.background)
 
     /* ================== BACKGROUND ================== */
     const bg = new Sprite(bgTexture)
     world.addChild(bg)
 
-    const cells = createCells(getRows(), getCols(), getSize(), Math.PI * getAngle());
-    let grid = createPerspectiveGrid(cells);
-    world.addChild(grid)
+    let content = createPerspectiveGrid(scene);
+    world.addChild(content)
 
 
     function layoutWorld() {
@@ -77,19 +81,18 @@ async function main() {
         bg.y = BASE_HEIGHT - bg.height
 
         // grid position
-        grid.x = BASE_WIDTH / 2
-        grid.y = BASE_HEIGHT
+        content.x = BASE_WIDTH / 2
+        content.y = BASE_HEIGHT
     }
 
     const recalculateGrid = function(){
-        grid.destroy();
-        const cells = createCells(getRows(), getCols(), getSize(), Math.PI * getAngle());
-        grid = createPerspectiveGrid(cells);
-        world.addChild(grid)
-        grid.x = BASE_WIDTH / 2
-        grid.y = BASE_HEIGHT
+        content.destroy();
+        content = createPerspectiveGrid(scene);
+        world.addChild(content)
+        content.x = BASE_WIDTH / 2
+        content.y = BASE_HEIGHT
     };
-    document.addEventListener('recalculate-grid', recalculateGrid);
+    on('on.scene.update', recalculateGrid);
 
     layoutWorld()
 
@@ -110,11 +113,14 @@ async function main() {
     })
 }
 
-main()
-
 
 ReactDOM.createRoot(
     document.getElementById('sidebar')!
 ).render(
      <Editor />
-)
+);
+
+on('on.ui.ready', () => {
+    initScene();
+    initTool();
+});

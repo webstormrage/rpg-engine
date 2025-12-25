@@ -26,3 +26,26 @@ export function midpoint(a: Point, b: Point) {
         (a.y + b.y) / 2
     )
 }
+
+/*export function getCellScale(cell: Cell) {
+    const x0 = cell.col - cell.grid.cols / 2
+    const x1 = cell.col + 1 - cell.grid.cols / 2
+
+    const z1 = cell.grid.rows - (cell.row + 1)
+
+    const p11 = transform(x1, z1, cell.grid)
+    const p01 = transform(x0, z1, cell.grid)
+    return distance(p01, p11)
+}
+
+export function getCellAnchor(cell: Cell) {
+    const x0 = cell.col - cell.grid.cols / 2;
+    const x1 = cell.col + 1 - cell.grid.cols / 2;
+
+    const z1 = cell.grid.rows - (cell.row + 1);
+
+    const p11 = transform(x1, z1, cell.grid);
+    const p01 = transform(x0, z1, cell.grid);
+
+    return midpoint(p01, p11);
+}*/
